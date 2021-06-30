@@ -92,6 +92,7 @@ function getLocalPosition() {
             latitude: latitude,
             longitude: longitude,
           };
+
           resolve(data);
         },
         function () {
@@ -102,12 +103,6 @@ function getLocalPosition() {
       reject("not surport");
     }
   });
-}
-
-async function getLocalLatAndLng() {
-  var result = await getLocalPosition();
-
-  return [result.latitude, result.longitude];
 }
 
 //The function below used to get distance of two points
@@ -236,7 +231,6 @@ const api = {
 
   getLatAndLng: getLatAndLng,
   getLocalPosition: getLocalPosition,
-  getLocalLatAndLng: getLocalLatAndLng,
   getDistance: getDistance,
   changeZoom: changeZoom,
   getTargetTimeInfoByPos: getTargetTimeInfoByPos,

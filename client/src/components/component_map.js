@@ -30,10 +30,6 @@ function Maker(props) {
 }
 
 export function MapContainer() {
-  useEffect(() => {
-    api.getLocalLatAndLng();
-  }, []);
-
   return (
     <div style={{ marginTop: "5%" }}>
       <Map_manage />
@@ -148,7 +144,10 @@ function Map_manage() {
 
   useEffect(() => {
     //first we must get local position
+    console.log("enter the get local");
     api.getLocalPosition().then((result) => {
+      console.log("result");
+      console.log(result);
       var pos = new Object();
       pos.lat = result.latitude;
       pos.lng = result.longitude;
