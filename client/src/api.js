@@ -1,7 +1,7 @@
 import "regenerator-runtime/runtime";
 
 import Geocode from "react-geocode";
-import { fitBounds } from "google-map-react";
+
 import { func } from "prop-types";
 
 const postRequest = (url, options) => {
@@ -61,8 +61,6 @@ function setGeocodeAPIKey() {
   Geocode.setApiKey(API_KEY);
 }
 
-//The function below used to set  Geocode.setApiKey
-
 /////The function below used to get lat and lng from address
 //input:address
 //output: lat and lng
@@ -112,7 +110,7 @@ async function getLocalLatAndLng() {
   return [result.latitude, result.longitude];
 }
 
-//The function below used to get distance by lat and lng
+//The function below used to get distance of two points
 
 function getDistance(lat1, lng1, lat2, lng2) {
   var radLat1 = (lat1 * Math.PI) / 180.0;
@@ -196,9 +194,9 @@ function getUTCTimeStamp() {
   return timestamp;
 }
 
-//get target time by lat and lng
-
+//get dstOffset and rawOffset of the target position
 async function getTargetTimeInfoByPos(lat, lng) {
+  //first create url
   var loc = lat + "," + lng;
 
   var timestamp = getUTCTimeStamp();
@@ -212,6 +210,8 @@ async function getTargetTimeInfoByPos(lat, lng) {
     "&key=" +
     apikey;
 
+  //ajax request
+
   var output = await getRequest(apicall, "");
 
   if (output.status == "OK") {
@@ -221,6 +221,8 @@ async function getTargetTimeInfoByPos(lat, lng) {
     return [];
   }
 }
+
+//get target time by dstOffset, rawOffset of the target position
 
 function getTargetTime(dstOffset, rawOffset) {
   var offsets = dstOffset * 1000 + rawOffset * 1000; // get DST and time zone offsets in milliseconds

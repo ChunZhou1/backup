@@ -17,6 +17,7 @@ import { func } from "prop-types";
 import home from "../../images/home.png";
 import target from "../../images/arrow.png";
 
+//used to display position
 function Maker(props) {
   return (
     <div>
@@ -28,7 +29,7 @@ function Maker(props) {
   );
 }
 
-export function MapContainer(props) {
+export function MapContainer() {
   useEffect(() => {
     api.getLocalLatAndLng();
   }, []);
@@ -40,7 +41,8 @@ export function MapContainer(props) {
   );
 }
 
-//map component
+//map component used to display map
+//input: center : center position;localPos=local position ;userPos = position of user input; visble: display when visble ==true;
 
 function MapDisplay(props) {
   return (
@@ -70,6 +72,10 @@ function MapDisplay(props) {
     </div>
   );
 }
+
+//used to process user input and display information
+//input:local pos, user input pos,target time,UTC Time stamp
+//output: user input address callback
 
 function User_Input_Display(props) {
   const refAddress = useRef(null);
@@ -128,6 +134,8 @@ function User_Input_Display(props) {
 
 var timer = null;
 
+//used to control map display
+
 function Map_manage() {
   const [zoom, setZoom] = useState(20);
 
@@ -139,42 +147,55 @@ function Map_manage() {
   const [visble, setVisble] = useState(false);
 
   useEffect(() => {
+    //first we must get local position
     api.getLocalPosition().then((result) => {
       var pos = new Object();
       pos.lat = result.latitude;
       pos.lng = result.longitude;
+
+      //display
       setLocalPos(pos);
       setCenter(pos);
       setVisble(true);
     });
   }, []);
 
+  //user input address and click search,we will display address on the map and target time information
   function onClick(address) {
     if (address == "" || address == null || address == undefined) {
       alert("address must be input");
       return;
     }
 
+    //if timer is exist,we must delete it first
+
     if (timer != null && timer != undefined) {
       clearInterval(timer);
     }
 
     setVisble(false);
+
+    //we will display address and target time
     getUserPos(address);
   }
 
+  //display address and target time
   async function getUserPos(address) {
-    var dstOffset, rawOffset;
+    var dstOffset, rawOffset; //get by google timezone api
 
+    //Get the longitude and latitude of the address from user input
     var pos = await api.getLatAndLng(address);
     if (pos.length == 0) {
       alert("address input err!");
     }
     setUserPos({ lat: pos[0], lng: pos[1] });
+
+    //Calculate zoom based on the distance between two points
+
     var distance = api.getDistance(localPos.lat, localPos.lng, pos[0], pos[1]);
 
-    console.log(distance);
-    console.log(api.changeZoom(distance));
+    /*console.log(distance);
+    console.log(api.changeZoom(distance));*/
 
     setCenter(localPos);
 
@@ -182,14 +203,14 @@ function Map_manage() {
 
     setVisble(true);
 
-    //get targetTime info
+    //get dstOffset,rawOffset first
     var targetInfo = await api.getTargetTimeInfoByPos(pos[0], pos[1]);
 
     if (targetInfo.length > 0) {
       dstOffset = targetInfo[0];
       rawOffset = targetInfo[1];
 
-      //get user targetTime
+      //set user targetTime and UTC time stamp
 
       timer = setInterval(() => {
         setTargetTime(api.getTargetTime(dstOffset, rawOffset));
