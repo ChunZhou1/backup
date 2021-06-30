@@ -14,8 +14,18 @@ import api from "../api";
 import GoogleMapReact from "google-map-react";
 import { func } from "prop-types";
 
+import home from "../../images/home.png";
+import target from "../../images/arrow.png";
+
 function Maker(props) {
-  return <h3 style={{ color: "red" }}>{props.text}</h3>;
+  return (
+    <div>
+      <h3 style={{ color: "red" }}>{props.text}</h3>
+      <div>
+        <img src={props.src} />
+      </div>
+    </div>
+  );
 }
 
 export function MapContainer(props) {
@@ -34,21 +44,27 @@ export function MapContainer(props) {
 
 function MapDisplay(props) {
   return (
-    <div style={{ height: "100vh", width: "100%", marginTop: "2%" }}>
+    <div style={{ height: "768px", width: "1024px", marginTop: "2%" }}>
       {props.visble == true && (
         <GoogleMapReact
           bootstrapURLKeys={{ key: "AIzaSyDCGh24bypgqJqTzp04ap6vjRjSk9ICqic" }}
-          defaultCenter={props.localPos}
+          defaultCenter={props.center}
           defaultZoom={15}
           zoom={props.zoom}
-          center={props.localPos}
+          center={props.center}
         >
           <Maker
             lat={props.localPos.lat}
             lng={props.localPos.lng}
             text="HOME"
+            src={home}
           />
-          <Maker lat={props.userPos.lat} lng={props.userPos.lng} text="USER" />
+          <Maker
+            lat={props.userPos.lat}
+            lng={props.userPos.lng}
+            text="Target"
+            src={target}
+          />
         </GoogleMapReact>
       )}
     </div>
@@ -110,10 +126,13 @@ function User_Input_Display(props) {
   );
 }
 
+var timer = null;
+
 function Map_manage() {
   const [zoom, setZoom] = useState(20);
 
-  const [localPos, SetLocalPos] = useState({});
+  const [localPos, setLocalPos] = useState({});
+  const [center, setCenter] = useState({});
   const [userPos, setUserPos] = useState({ lat: 0, lng: 0 });
   const [targetTime, setTargetTime] = useState("");
   const [UTCStamp, setUTC] = useState(0);
@@ -124,7 +143,8 @@ function Map_manage() {
       var pos = new Object();
       pos.lat = result.latitude;
       pos.lng = result.longitude;
-      SetLocalPos(pos);
+      setLocalPos(pos);
+      setCenter(pos);
       setVisble(true);
     });
   }, []);
@@ -135,25 +155,47 @@ function Map_manage() {
       return;
     }
 
+    if (timer != null && timer != undefined) {
+      clearInterval(timer);
+    }
+
+    setVisble(false);
     getUserPos(address);
   }
 
   async function getUserPos(address) {
+    var dstOffset, rawOffset;
+
     var pos = await api.getLatAndLng(address);
+    if (pos.length == 0) {
+      alert("address input err!");
+    }
     setUserPos({ lat: pos[0], lng: pos[1] });
     var distance = api.getDistance(localPos.lat, localPos.lng, pos[0], pos[1]);
 
+    console.log(distance);
+    console.log(api.changeZoom(distance));
+
+    setCenter(localPos);
+
     setZoom(api.changeZoom(distance));
 
-    //get user targetTime
+    setVisble(true);
 
-    setInterval(async () => {
-      var targetTime = await api.getTargetTimeByPos(pos[0], pos[1]);
-      if (targetTime.length > 0) {
-        setTargetTime(targetTime[0]);
-        setUTC(targetTime[1]);
-      }
-    }, 500);
+    //get targetTime info
+    var targetInfo = await api.getTargetTimeInfoByPos(pos[0], pos[1]);
+
+    if (targetInfo.length > 0) {
+      dstOffset = targetInfo[0];
+      rawOffset = targetInfo[1];
+
+      //get user targetTime
+
+      timer = setInterval(() => {
+        setTargetTime(api.getTargetTime(dstOffset, rawOffset));
+        setUTC(api.getUTCTimeStamp());
+      }, 500);
+    }
   }
 
   return (
@@ -165,9 +207,10 @@ function Map_manage() {
         targetTime={targetTime}
         UTCStamp={UTCStamp}
       />
-      <div>
+      <div style={{ marginLeft: "10%" }}>
         <MapDisplay
           zoom={zoom}
+          center={center}
           localPos={localPos}
           userPos={userPos}
           visble={visble}

@@ -1,6 +1,7 @@
 import "regenerator-runtime/runtime";
 
 import Geocode from "react-geocode";
+import { fitBounds } from "google-map-react";
 import { func } from "prop-types";
 
 const postRequest = (url, options) => {
@@ -69,11 +70,16 @@ function setGeocodeAPIKey() {
 async function getLatAndLng(address) {
   setGeocodeAPIKey();
 
-  var response = await Geocode.fromAddress(address);
+  try {
+    var response = await Geocode.fromAddress(address);
 
-  const { lat, lng } = response.results[0].geometry.location;
+    const { lat, lng } = response.results[0].geometry.location;
 
-  return [lat, lng];
+    return [lat, lng];
+  } catch (err) {
+    console.log(err);
+    return [];
+  }
 }
 
 //the function below used to get local position
@@ -132,65 +138,71 @@ function changeZoom(distance) {
     return 15;
   }
 
-  if (distance < 5) {
+  if (distance < 3) {
     return 14;
   }
 
-  if (distance < 10) {
+  if (distance < 5) {
     return 13;
   }
 
-  if (distance < 20) {
+  if (distance < 10) {
     return 12;
   }
 
-  if (distance < 50) {
+  if (distance < 25) {
     return 11;
   }
 
-  if (distance < 100) {
+  if (distance < 50) {
     return 10;
   }
 
-  if (distance < 200) {
+  if (distance < 100) {
     return 9;
   }
 
-  if (distance < 500) {
+  if (distance < 250) {
     return 8;
   }
 
-  if (distance < 1000) {
+  if (distance < 500) {
     return 7;
   }
 
-  if (distance < 2000) {
+  if (distance < 1000) {
     return 6;
   }
 
-  if (distance < 5000) {
+  if (distance < 2000) {
     return 4;
   }
 
-  if (distance < 10000) {
+  if (distance < 5000) {
     return 3;
   }
 
-  if (distance < 20000) {
+  if (distance < 10000) {
     return 2;
   }
 
   return 1;
 }
 
-//get target time by lat and lng
-
-async function getTargetTimeByPos(lat, lng) {
-  var loc = lat + "," + lng;
-
+function getUTCTimeStamp() {
   var targetDate = new Date(); // Current date/time of client
   var timestamp =
     targetDate.getTime() / 1000 + targetDate.getTimezoneOffset() * 60; // Current UTC date/time expressed as seconds since midnight, January 1, 1970 UTC
+  return timestamp;
+}
+
+//get target time by lat and lng
+
+async function getTargetTimeInfoByPos(lat, lng) {
+  var loc = lat + "," + lng;
+
+  var timestamp = getUTCTimeStamp();
+
   var apikey = "AIzaSyD4irg3Kf989FRrRVxHlEJxAx2cXButGf0";
   var apicall =
     "https://maps.googleapis.com/maps/api/timezone/json?location=" +
@@ -203,13 +215,17 @@ async function getTargetTimeByPos(lat, lng) {
   var output = await getRequest(apicall, "");
 
   if (output.status == "OK") {
-    var offsets = output.dstOffset * 1000 + output.rawOffset * 1000; // get DST and time zone offsets in milliseconds
-    var localdate = new Date(timestamp * 1000 + offsets); // Date object containing current time of target (timestamp + dstOffset + rawOffset)
-    return [localdate.toLocaleString(), timestamp];
+    return [output.dstOffset, output.rawOffset];
   } else {
-    console.log("get time error");
+    console.log("get time info error");
     return [];
   }
+}
+
+function getTargetTime(dstOffset, rawOffset) {
+  var offsets = dstOffset * 1000 + rawOffset * 1000; // get DST and time zone offsets in milliseconds
+  var localdate = new Date(getUTCTimeStamp() * 1000 + offsets); // Date object containing current time of target (timestamp + dstOffset + rawOffset)
+  return localdate.toLocaleString();
 }
 
 const api = {
@@ -221,7 +237,9 @@ const api = {
   getLocalLatAndLng: getLocalLatAndLng,
   getDistance: getDistance,
   changeZoom: changeZoom,
-  getTargetTimeByPos: getTargetTimeByPos,
+  getTargetTimeInfoByPos: getTargetTimeInfoByPos,
+  getTargetTime: getTargetTime,
+  getUTCTimeStamp: getUTCTimeStamp,
 };
 
 export default api;
