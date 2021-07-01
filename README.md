@@ -2,7 +2,7 @@
 
 # How to run?
 
-###The **index.html** is contained in the **"dist"** directory and can be run directly.
+The **index.html** is contained in the **"dist"** directory and can be run directly.
 
 # How to compile?
 1: Open the Terminal under the **Client** directory
