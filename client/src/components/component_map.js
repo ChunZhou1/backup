@@ -21,10 +21,9 @@ import target from "../../images/arrow.png";
 function Maker(props) {
   return (
     <div>
+      <img src={props.src} />
+
       <h3 style={{ color: "red" }}>{props.text}</h3>
-      <div>
-        <img src={props.src} />
-      </div>
     </div>
   );
 }
@@ -93,7 +92,7 @@ function User_Input_Display(props) {
 
         <Col xs={12}>
           <h3>
-            User&nbsp;Latitude:&nbsp; {props.userPos.lat}
+            Target&nbsp;Latitude:&nbsp; {props.userPos.lat}
             &nbsp;&nbsp;Longitude:&nbsp;
             {props.userPos.lng}
           </h3>
