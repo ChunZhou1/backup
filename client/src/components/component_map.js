@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from "react";
 
 import "antd/dist/antd.css";
 
-import { Button, Input, Spin, Badge } from "antd";
+import { Button, Input, Spin } from "antd";
 import { Row, Col } from "antd";
 
 import { fixControlledValue } from "antd/lib/input/Input";
@@ -134,6 +134,7 @@ var timer = null;
 function Map_manage() {
   const [zoom, setZoom] = useState(20);
 
+  const [loading, setLoading] = useState(false);
   const [localPos, setLocalPos] = useState({});
   const [center, setCenter] = useState({});
   const [userPos, setUserPos] = useState({ lat: 0, lng: 0 });
@@ -143,14 +144,13 @@ function Map_manage() {
 
   useEffect(() => {
     //first we must get local position
-    console.log("enter the get local");
+    setLoading(true);
     api.getLocalPosition().then((result) => {
-      console.log("result");
-      console.log(result);
       var pos = new Object();
       pos.lat = result.latitude;
       pos.lng = result.longitude;
 
+      setLoading(false);
       //display
       setLocalPos(pos);
       setCenter(pos);
@@ -227,13 +227,15 @@ function Map_manage() {
         UTCStamp={UTCStamp}
       />
       <div style={{ marginLeft: "10%" }}>
-        <MapDisplay
-          zoom={zoom}
-          center={center}
-          localPos={localPos}
-          userPos={userPos}
-          visble={visble}
-        />
+        <Spin tip="Get local position,please wait..." spinning={loading}>
+          <MapDisplay
+            zoom={zoom}
+            center={center}
+            localPos={localPos}
+            userPos={userPos}
+            visble={visble}
+          />
+        </Spin>
       </div>
     </div>
   );
