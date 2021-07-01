@@ -1,4 +1,4 @@
-# Use react+google map api + google time zone api for development
+# Use react + google map api + google time zone api for development
 
 # How to run?
 
