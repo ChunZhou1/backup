@@ -2,9 +2,14 @@
 
 # How to run?
 
-The **index.html** is contained in the **"dist"** directory and can be run directly.
+###The **index.html** is contained in the **"dist"** directory and can be run directly.
 
-"npm install" before compiling, then run "npm run build"
+# How to compile?
+1: Open the Terminal under the **Client** directory
+
+2: **npm install**
+
+3: **npm run build"**
 
 # The program contains the following parts：
 
@@ -138,9 +143,9 @@ function getTargetTime(dstOffset, rawOffset) {
 
 # Some special considerations in the program
 
-### 1: You need to disable google map display before getting the local position ,otherwise the map will not be displayed properly.
+ 1: You need to disable google map display before getting the local position ,otherwise the map will not be displayed properly.
 
-### 2: You need to disable google map display before changing the zoom and center of Google Maps.
+ 2: You need to disable google map display before changing the zoom and center of Google Maps.
 
 
 
