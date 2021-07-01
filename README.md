@@ -1,10 +1,8 @@
-# Use react+google map api + google time zone api development
+# Use react+google map api + google time zone api for development
 
 # How to run?
 
 The **index.html** is contained in the **"dist"** directory and can be run directly.
-
-Location service needs to be turned on when running.
 
 "npm install" before compiling, then run "npm run build"
 
@@ -140,7 +138,7 @@ function getTargetTime(dstOffset, rawOffset) {
 
 # Some special considerations in the program
 
-### 1: You need to disable google map display before getting the local position ,otherwise the display is not OK
+### 1: You need to disable google map display before getting the local position ,otherwise the map will not be displayed properly.
 
 ### 2: You need to disable google map display before changing the zoom and center of Google Maps.
 
