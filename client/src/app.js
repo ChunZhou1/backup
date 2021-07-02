@@ -1,9 +1,5 @@
 import React from "react";
 
-import { Switch, Route, Router } from "react-router-dom";
-
-import history from "./history";
-
 import { MapContainer } from "./components/component_map";
 
 //for redux
@@ -25,26 +21,11 @@ var sectionStyle = {
   overflow: "auto",
 };
 
-/*export const store = createStore(rootReducer);*/
-
-function Main() {
-  return (
-    <Switch>
-      <Route path="/">
-        <MapContainer />
-      </Route>
-            
-    </Switch>
-  );
-}
-
 function App() {
   return (
-    <Router history={history}>
-      <div style={sectionStyle}>
-        <Main />
-      </div>
-    </Router>
+    <div style={sectionStyle}>
+      <MapContainer />
+    </div>
   );
 }
 
